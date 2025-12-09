@@ -56,8 +56,4 @@ class OpenAIScraper:
 
 if __name__ == "__main__":
     scraper = OpenAIScraper()
-    articles = scraper.scrape_news(time_window_hours=240)
-    for article in articles:
-        print(f"{article.published_at}: {article.title}")
-        print(f"  {article.url}")
-        print()
+    articles = scraper.scrape_news(time_window_hours=24)
