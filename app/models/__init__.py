@@ -2,5 +2,12 @@
 
 from .news import NewsArticle
 from .youtube import YouTubeVideo, VideoTranscript
+from .config import RunnerConfig, RunnerResult
 
-__all__ = ["NewsArticle", "YouTubeVideo", "VideoTranscript"]
+__all__ = [
+    "NewsArticle",
+    "YouTubeVideo",
+    "VideoTranscript",
+    "RunnerConfig",
+    "RunnerResult",
+]
