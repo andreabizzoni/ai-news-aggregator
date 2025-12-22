@@ -1,9 +1,10 @@
-"""OpenAI news scraper using RSS feed."""
-
 from datetime import datetime, timedelta, timezone
 import feedparser
+import logging
 
 from models.news import NewsItem
+
+logger = logging.getLogger(__name__)
 
 
 class OpenAIScraper:
@@ -44,6 +45,7 @@ class OpenAIScraper:
                 )
                 articles.append(article)
 
+        logger.info("OpenAI articles scraped successfully")
         return articles
 
 

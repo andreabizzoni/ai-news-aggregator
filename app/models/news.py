@@ -1,5 +1,3 @@
-"""News article models."""
-
 from datetime import datetime
 from pydantic import BaseModel, Field
 from typing import Literal, Optional

@@ -1,5 +1,3 @@
-"""SQLAlchemy database models."""
-
 from datetime import datetime, timezone
 from sqlalchemy import String, DateTime, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -24,8 +22,8 @@ class NewsItemDB(Base):
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=True)
     url: Mapped[str] = mapped_column(String(500), nullable=False)
-    published_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    author: Mapped[str] = mapped_column(String(255), nullable=False)
+    published_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    author: Mapped[str] = mapped_column(String(255), nullable=True)
     digest: Mapped[str] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now(timezone.utc), nullable=False

@@ -1,5 +1,3 @@
-"""Database repository for managing database operations."""
-
 import os
 from typing import List
 from dotenv import load_dotenv
@@ -52,6 +50,7 @@ class Repository:
                     published_at=item.published_at,
                     guid=item.guid,
                     digest=item.digest,
+                    author=item.author,
                 )
                 stmt = stmt.on_conflict_do_nothing(index_elements=["guid"])
                 session.execute(stmt)

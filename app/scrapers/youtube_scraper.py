@@ -1,11 +1,12 @@
-"""YouTube channel scraper using RSS feed."""
-
 from datetime import datetime, timedelta, timezone
 from typing import List
 import feedparser
 from youtube_transcript_api import YouTubeTranscriptApi
+import logging
 
 from models.news import NewsItem
+
+logger = logging.getLogger(__name__)
 
 
 class YouTubeScraper:
@@ -47,6 +48,7 @@ class YouTubeScraper:
         feed = feedparser.parse(feed_url)
 
         if not feed.entries:
+            logger.info("No YouTube videos available to scrape")
             return []
 
         cutoff_time = datetime.now(timezone.utc) - timedelta(hours=time_window_hours)
@@ -69,5 +71,5 @@ class YouTubeScraper:
                     description=self.get_transcript(entry.yt_videoid),
                 )
                 videos.append(video)
-
+        logger.info("YouTube videos scraped successfully")
         return videos

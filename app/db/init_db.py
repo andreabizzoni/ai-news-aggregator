@@ -1,5 +1,3 @@
-"""Initialize the database schema."""
-
 from repository import Repository
 
 

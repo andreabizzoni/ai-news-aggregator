@@ -3,6 +3,7 @@ from models.news import NewsItem
 from typing import List
 from models.llm_response import LLMResponse
 import logging
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ class Agent:
         self.client = Client()
         self.prompt = PROMPT
 
-    def add_digest(self, items: List[NewsItem]) -> List[NewsItem]:
+    async def add_digest(self, items: List[NewsItem]) -> List[NewsItem]:
         formatted_prompt = self.prompt.format(
             contents="\n".join(
                 [
@@ -41,9 +42,10 @@ class Agent:
                 ]
             )
         )
-        print(formatted_prompt)
+
         try:
-            response = self.client.models.generate_content(
+            response = await asyncio.to_thread(
+                self.client.models.generate_content,
                 model=self.model,
                 contents=formatted_prompt,
                 config={
@@ -60,9 +62,8 @@ class Agent:
             for item in items:
                 if item.guid in digest_map:
                     item.digest = digest_map[item.guid]
-
             return items
 
         except Exception as e:
-            logger.exception("Failed to generate digests for news articles: %s", str(e))
+            logger.exception(f"Failed to generate digests for news articles: {e}")
             return items

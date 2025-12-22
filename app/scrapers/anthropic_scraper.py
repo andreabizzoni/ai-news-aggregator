@@ -1,10 +1,11 @@
-"""Anthropic news scraper using RSS feeds."""
-
 from datetime import datetime, timedelta, timezone
 import feedparser
 from docling.document_converter import DocumentConverter
+import logging
 
 from models.news import NewsItem
+
+logger = logging.getLogger(__name__)
 
 
 class AnthropicAIScraper:
@@ -40,7 +41,6 @@ class AnthropicAIScraper:
                 continue
 
             for entry in feed.entries:
-                # Try to get published date from different possible fields
                 if hasattr(entry, "published_parsed") and entry.published_parsed:
                     published_at = datetime(
                         *entry.published_parsed[:6], tzinfo=timezone.utc
@@ -64,9 +64,8 @@ class AnthropicAIScraper:
                     )
                     articles.append(article)
 
-        # Sort articles by published date (newest first)
         articles.sort(key=lambda x: x.published_at, reverse=True)
-
+        logger.info("Anthropic articles scraped successfully")
         return articles
 
     def convert_article_to_markdown(self, url: str) -> str:
