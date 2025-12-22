@@ -19,8 +19,8 @@ class RunnerResult(BaseModel):
         default=None, description="List of youtube video transcripts"
     )
     openai_articles: List[NewsArticle] = Field(
-        default=None, description="Listt of OpenAI news articles"
+        default=None, description="List of OpenAI news articles"
     )
     anthropic_articles: List[NewsArticle] = Field(
-        default=None, description="Listt of Anthropic news articles"
+        default=None, description="List of Anthropic news articles"
     )

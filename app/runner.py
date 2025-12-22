@@ -31,7 +31,8 @@ class Runner:
 
 if __name__ == "__main__":
     config = RunnerConfig(
-        time_window_hours=200, youtube_channels=["UCLKPca3kwwd-B59HNr-_lvA"]
+        time_window_hours=24,
+        youtube_channels=["UCLKPca3kwwd-B59HNr-_lvA", "UCn8ujwUInbJkBhffxqAPBVQ"],
     )
     runner = Runner(config)
     result = runner.run()
