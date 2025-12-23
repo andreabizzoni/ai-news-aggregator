@@ -3,6 +3,12 @@ from app.db.repository import Repository
 from app.models.config import RunnerConfig
 from app.runner import Runner
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
+)
+
 logger = logging.getLogger(__name__)
 
 
