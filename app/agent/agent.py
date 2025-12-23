@@ -1,3 +1,4 @@
+import os
 from google.genai import Client
 from models.news import NewsItem
 from typing import List
@@ -5,6 +6,9 @@ from models.llm_response import DigestLLMResponse, EmailLLMResponse
 import logging
 import asyncio
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +60,7 @@ Generate structured email content in JSON format.
 class Agent:
     def __init__(self):
         self.model = "gemini-2.5-flash"
-        self.client = Client()
+        self.client = Client(api_key=os.getenv("GEMINI_API_KEY"))
         self.prompt = DIGEST_PROMPT
 
     async def add_digest(self, items: List[NewsItem]) -> List[NewsItem]:
