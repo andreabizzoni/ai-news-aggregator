@@ -1,19 +1,16 @@
-services:
-  - type: pserv
-    name: ai-news-aggregator-db
-    env: python
+databases:
+  - name: ai-news-aggregator-db
+    databaseName: ai_news_aggregator
+    user: ai_news_user
     plan: starter
-    region: oregon
-    databases:
-      - name: ai-news-aggregator-db
-        databaseName: ai_news_aggregator
-        user: ai_news_user
 
+services:
   - type: cron
     name: ai-news-aggregator-job
     env: python
-    region: oregon
+    runtime: python
     plan: starter
+    region: oregon
     schedule: "0 12 * * *"
     buildCommand: pip install -r requirements.txt
     startCommand: python main.py
@@ -25,7 +22,7 @@ services:
           name: ai-news-aggregator-db
           property: connectionString
       - key: GEMINI_API_KEY
-        sync: false 
+        sync: false
       - key: EMAIL_FROM
         sync: false
       - key: EMAIL_TO
