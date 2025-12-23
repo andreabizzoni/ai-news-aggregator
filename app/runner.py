@@ -1,10 +1,14 @@
-from models import RunnerConfig, RunnerResult
+from models import RunnerConfig
 from models.news import NewsItem
 from scrapers import AnthropicAIScraper, YouTubeScraper, OpenAIScraper
 from db import Repository
 from agent import Agent
+from services import EmailService
 import asyncio
+import logging
 from typing import List, Tuple
+
+logger = logging.getLogger(__name__)
 
 
 class Runner:
@@ -13,11 +17,11 @@ class Runner:
         self.youtube_channels = config.youtube_channels
         self.repository = repository
         self.agent = Agent()
+        self.email_service = EmailService()
 
     async def _run_digest_async(
         self, articles: List[NewsItem], videos: List[NewsItem]
     ) -> Tuple[List[NewsItem], List[NewsItem]]:
-        """Run digest operations concurrently"""
         articles_task = self.agent.add_digest(articles)
         videos_task = self.agent.add_digest(videos)
         return await asyncio.gather(articles_task, videos_task)
@@ -25,7 +29,6 @@ class Runner:
     async def _scrape_all_async(
         self,
     ) -> Tuple[List[NewsItem], List[NewsItem], List[NewsItem]]:
-        """Run all scraping operations concurrently"""
         youtube_scraper = YouTubeScraper()
         openai_scraper = OpenAIScraper()
         anthropic_scraper = AnthropicAIScraper()
@@ -51,15 +54,15 @@ class Runner:
         results = await asyncio.gather(*tasks)
 
         youtube_videos = []
-        for result in results[:-2]:  # All but last 2 are YouTube results
+        for result in results[:-2]:
             youtube_videos.extend(result)
 
-        openai_articles = results[-2]  # Second to last
-        anthropic_articles = results[-1]  # Last
+        openai_articles = results[-2]
+        anthropic_articles = results[-1]
 
         return youtube_videos, openai_articles, anthropic_articles
 
-    def run(self) -> RunnerResult:
+    def run(self):
         youtube_videos, openai_articles, anthropic_articles = asyncio.run(
             self._scrape_all_async()
         )
@@ -72,13 +75,18 @@ class Runner:
 
         videos_saved = self.repository.save_news_items(digested_youtube_videos)
         articles_saved = self.repository.save_news_items(digested_articles)
-
-        return RunnerResult(
-            youtube_videos=digested_youtube_videos,
-            videos_saved=videos_saved,
-            articles=digested_articles,
-            articles_saved=articles_saved,
+        logger.info(
+            f"Saved {videos_saved} videos and {articles_saved} articles to database"
         )
+
+        all_digested_items = digested_articles + digested_youtube_videos
+        email_content = self.agent.create_email_content(all_digested_items)
+        email_sent = self.email_service.send_email(email_content)
+
+        if email_sent:
+            logger.info("Email sent successfully")
+        else:
+            logger.error("Failed to send email. Check logs for details")
 
 
 if __name__ == "__main__":
@@ -91,6 +99,3 @@ if __name__ == "__main__":
     )
     runner = Runner(config, repository)
     result = runner.run()
-    print("\nScraping completed successfully!")
-    print(f"YouTube videos: {result.videos_saved}")
-    print(f"Articles: {result.articles_saved}")

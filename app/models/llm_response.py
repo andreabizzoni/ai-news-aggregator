@@ -2,14 +2,38 @@ from pydantic import BaseModel, Field
 from typing import List
 
 
-class Digest(BaseModel):
+class DigestItem(BaseModel):
     """Represents a news item digest"""
 
     guid: str = Field(..., description="The globally unique identifier for the item")
     digest: str = Field(..., description="The digest for the item")
 
 
-class LLMResponse(BaseModel):
+class DigestLLMResponse(BaseModel):
     """Represents a structured LLM response"""
 
-    digests: List[Digest] = Field(..., description="A list of digests")
+    digests: List[DigestItem] = Field(..., description="A list of digests")
+
+
+class EmailItem(BaseModel):
+    """Represents a single news item in the email digest."""
+
+    title: str = Field(..., description="The headline for this digest item")
+    summary: str = Field(..., description="The digest summary (2-3 sentences)")
+    url: str = Field(..., description="The URL to the original content")
+    source: str = Field(
+        ..., description="Source attribution (e.g., 'OpenAI', 'YouTube - Channel Name')"
+    )
+
+
+class EmailLLMResponse(BaseModel):
+    """Represents the structured content of an email digest."""
+
+    greeting: str = Field(..., description="The greeting message ('Hi Andrea')")
+    date_reference: str = Field(
+        ...,
+        description="Reference to today's date (e.g., 'Your AI digest for December 23, 2024')",
+    )
+    introduction: str = Field(..., description="Brief 1-2 sentence introduction")
+    digest_items: List[EmailItem] = Field(..., description="List of news digest items")
+    sign_off: str = Field(..., description="Friendly closing message")

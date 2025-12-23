@@ -1,13 +1,14 @@
 from google.genai import Client
 from models.news import NewsItem
 from typing import List
-from models.llm_response import LLMResponse
+from models.llm_response import DigestLLMResponse, EmailLLMResponse
 import logging
 import asyncio
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-PROMPT = """
+DIGEST_PROMPT = """
 You are an expert AI news analyst specializing in summarizing technical articles, research papers, and video content about artificial intelligence.
 
 Your role is to create concise, informative digests that help readers quickly understand the key points and significance of AI-related content.
@@ -24,12 +25,39 @@ These are the contents to create digests for:
 {contents}
 """
 
+EMAIL_PROMPT = """
+You are an expert at creating structured email content for AI news digests.
+
+Your task is to analyze the provided news items and generate structured email content that includes:
+
+1. **Greeting**: A warm greeting (e.g., "Hi Andrea,")
+2. **Date Reference**: A friendly reference to the date provided (e.g., "Here's your curated AI digest for {date}")
+3. **Introduction**: A brief, engaging 1-2 sentence introduction about the curated AI news
+4. **Digest Items**: For each news item, create:
+   - A compelling title/headline (5-10 words)
+   - A summary (2-3 sentences highlighting key insights)
+   - Include the URL and source attribution
+5. **Sign Off**: A friendly closing message
+
+Guidelines:
+- Use clear, accessible language while maintaining technical accuracy
+- Focus on actionable insights and implications
+- Avoid marketing fluff - focus on substance
+- Keep summaries concise but informative
+
+Here are the news items to include:
+
+{contents}
+
+Generate structured email content in JSON format.
+"""
+
 
 class Agent:
     def __init__(self):
         self.model = "gemini-2.5-flash"
         self.client = Client()
-        self.prompt = PROMPT
+        self.prompt = DIGEST_PROMPT
 
     async def add_digest(self, items: List[NewsItem]) -> List[NewsItem]:
         formatted_prompt = self.prompt.format(
@@ -50,10 +78,10 @@ class Agent:
                 contents=formatted_prompt,
                 config={
                     "response_mime_type": "application/json",
-                    "response_json_schema": LLMResponse.model_json_schema(),
+                    "response_json_schema": DigestLLMResponse.model_json_schema(),
                 },
             )
-            validated_response = LLMResponse.model_validate_json(response.text)
+            validated_response = DigestLLMResponse.model_validate_json(response.text)
 
             digest_map = {
                 digest.guid: digest.digest for digest in validated_response.digests
@@ -67,3 +95,40 @@ class Agent:
         except Exception as e:
             logger.exception(f"Failed to generate digests for news articles: {e}")
             return items
+
+    def create_email_content(self, items: List[NewsItem]) -> EmailLLMResponse:
+        formatted_prompt = EMAIL_PROMPT.format(
+            date=datetime.now().strftime("%B %d, %Y"),
+            contents="\n".join(
+                [
+                    item.model_dump_json(
+                        indent=2,
+                        include={
+                            "source",
+                            "title",
+                            "url",
+                            "digest",
+                            "author",
+                        },
+                    )
+                    for item in items
+                    if item.digest
+                ]
+            ),
+        )
+
+        try:
+            response = self.client.models.generate_content(
+                model=self.model,
+                contents=formatted_prompt,
+                config={
+                    "response_mime_type": "application/json",
+                    "response_json_schema": EmailLLMResponse.model_json_schema(),
+                },
+            )
+            validated_response = EmailLLMResponse.model_validate_json(response.text)
+            return validated_response
+
+        except Exception as e:
+            logger.exception(f"Failed to generate email content: {e}")
+            return None
