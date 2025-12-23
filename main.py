@@ -31,8 +31,6 @@ def main():
         runner = Runner(config, repository)
         runner.run()
 
-        logger.info("AI News Aggregator completed successfully")
-
     except Exception as e:
         logger.error(f"Fatal error in AI News Aggregator: {e}", exc_info=True)
         raise
