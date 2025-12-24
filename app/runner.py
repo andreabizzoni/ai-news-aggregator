@@ -1,6 +1,6 @@
 from .models import RunnerConfig
 from .models.news import NewsItem
-from .scrapers import AnthropicAIScraper, YouTubeScraper, OpenAIScraper
+from .scrapers import AnthropicAIScraper, YouTubeScraper, OpenAIScraper, ModularScraper
 from .db import Repository
 from .agent import Agent
 from .services import EmailService
@@ -28,10 +28,11 @@ class Runner:
 
     async def _scrape_all_async(
         self,
-    ) -> Tuple[List[NewsItem], List[NewsItem], List[NewsItem]]:
+    ) -> Tuple[List[NewsItem], List[NewsItem], List[NewsItem], List[NewsItem]]:
         youtube_scraper = YouTubeScraper()
         openai_scraper = OpenAIScraper()
         anthropic_scraper = AnthropicAIScraper()
+        modular_scraper = ModularScraper()
 
         tasks = []
 
@@ -51,23 +52,29 @@ class Runner:
         )
         tasks.append(anthropic_task)
 
+        modular_task = asyncio.to_thread(
+            modular_scraper.scrape_news, self.time_window_hours
+        )
+        tasks.append(modular_task)
+
         results = await asyncio.gather(*tasks)
 
         youtube_videos = []
-        for result in results[:-2]:
+        for result in results[:-3]:
             youtube_videos.extend(result)
 
-        openai_articles = results[-2]
-        anthropic_articles = results[-1]
+        openai_articles = results[-3]
+        anthropic_articles = results[-2]
+        modular_articles = results[-1]
 
-        return youtube_videos, openai_articles, anthropic_articles
+        return youtube_videos, openai_articles, anthropic_articles, modular_articles
 
     def run(self):
-        youtube_videos, openai_articles, anthropic_articles = asyncio.run(
-            self._scrape_all_async()
+        youtube_videos, openai_articles, anthropic_articles, modular_articles = (
+            asyncio.run(self._scrape_all_async())
         )
 
-        all_articles = openai_articles + anthropic_articles
+        all_articles = openai_articles + anthropic_articles + modular_articles
 
         digested_articles, digested_youtube_videos = asyncio.run(
             self._run_digest_async(all_articles, youtube_videos)

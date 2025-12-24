@@ -7,7 +7,7 @@ class NewsItem(BaseModel):
     """Represents a news item, whether an article or a video"""
 
     guid: str = Field(..., description="The unique item ID")
-    source: Literal["OpenAI", "Anthropic", "YouTube"] = Field(
+    source: Literal["OpenAI", "Anthropic", "YouTube", "Modular"] = Field(
         description="The source of the news item"
     )
     title: str = Field(..., description="The title of the news item")

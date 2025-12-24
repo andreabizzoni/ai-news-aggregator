@@ -7,10 +7,10 @@ from ..models.news import NewsItem
 logger = logging.getLogger(__name__)
 
 
-class OpenAIScraper:
-    """Scrapes OpenAI RSS feed for recent news articles."""
+class ModularScraper:
+    """Scrapes Modular RSS feed for recent news articles."""
 
-    RSS_FEED_URL = "https://openai.com/news/rss.xml"
+    RSS_FEED_URL = "https://www.modular.com/blog/rss.xml"
 
     def scrape_news(self, time_window_hours: int = 24) -> list[NewsItem]:
         feed = feedparser.parse(self.RSS_FEED_URL)
@@ -26,15 +26,15 @@ class OpenAIScraper:
 
             if published_at >= cutoff_time:
                 article = NewsItem(
-                    source="OpenAI",
+                    source="Modular",
                     title=entry.title,
                     description=entry.description,
                     url=entry.link,
                     published_at=published_at,
                     guid=entry.guid,
-                    author="OpenAI",
+                    author="Modular",
                 )
                 articles.append(article)
 
-        logger.info("OpenAI articles scraped successfully")
+        logger.info("Modular articles scraped successfully")
         return articles
