@@ -2,7 +2,7 @@
 
 > Stay up-to-date with AI news, delivered to your inbox with smart summaries!
 
-This project scrapes the latest AI news from YouTube channels, OpenAI, and Anthropic, uses AI to generate smart summaries, stores everything in PostgreSQL, and emails you a digest daily.
+This project scrapes the latest AI news from YouTube channels, OpenAI, Anthropic and other sources, uses AI to generate smart summaries, stores everything in PostgreSQL, and emails you a digest daily.
 
 ## Quick Start
 
