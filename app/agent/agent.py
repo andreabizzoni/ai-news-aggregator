@@ -6,7 +6,7 @@ from ..models.llm_response import DigestLLMResponse, EmailLLMResponse
 import logging
 import asyncio
 from dotenv import load_dotenv
-from langfuse import observe
+from langfuse import observe, get_client
 
 load_dotenv()
 
@@ -83,6 +83,16 @@ class Agent:
                     "response_json_schema": DigestLLMResponse.model_json_schema(),
                 },
             )
+
+            langfuse = get_client()
+            langfuse.update_current_generation(
+                model=self.model,
+                usage_details={
+                    "input": response.usage_metadata.prompt_token_count,
+                    "output": response.usage_metadata.candidates_token_count,
+                },
+            )
+
             validated_response = DigestLLMResponse.model_validate_json(response.text)
 
             digest_map = {
@@ -98,7 +108,7 @@ class Agent:
             logger.exception(f"Failed to generate digests for news articles: {e}")
             return items
 
-    @observe(as_type="generation")
+    @observe(as_type="generation", model="gemini-2.5-flash")
     def create_email_content(self, items: List[NewsItem]) -> EmailLLMResponse:
         formatted_prompt = EMAIL_PROMPT.format(
             contents="\n".join(
@@ -128,6 +138,16 @@ class Agent:
                     "response_json_schema": EmailLLMResponse.model_json_schema(),
                 },
             )
+
+            langfuse = get_client()
+            langfuse.update_current_generation(
+                model=self.model,
+                usage_details={
+                    "input": response.usage_metadata.prompt_token_count,
+                    "output": response.usage_metadata.candidates_token_count,
+                },
+            )
+
             validated_response = EmailLLMResponse.model_validate_json(response.text)
             return validated_response
 
