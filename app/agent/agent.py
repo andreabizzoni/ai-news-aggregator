@@ -108,7 +108,7 @@ class Agent:
             logger.exception(f"Failed to generate digests for news articles: {e}")
             return items
 
-    @observe(as_type="generation", model="gemini-2.5-flash")
+    @observe(as_type="generation")
     def create_email_content(self, items: List[NewsItem]) -> EmailLLMResponse:
         formatted_prompt = EMAIL_PROMPT.format(
             contents="\n".join(
