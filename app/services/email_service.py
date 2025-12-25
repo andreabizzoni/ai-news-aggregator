@@ -3,6 +3,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import logging
+import datetime
 from dotenv import load_dotenv
 
 from ..models.llm_response import EmailLLMResponse
@@ -20,7 +21,9 @@ class EmailService:
         if not all([self.email_from, self.email_to, self.email_password]):
             logger.warning("Email credentials not fully configured in .env file")
 
-    def render_email_html(self, email_content: EmailLLMResponse) -> str:
+    def render_email_html(
+        self, email_content: EmailLLMResponse, user: str = "Andrea"
+    ) -> str:
         items_html = ""
         for item in email_content.digest_items:
             items_html += f"""
@@ -47,8 +50,8 @@ class EmailService:
             </div>
             
             <div style="background-color: white; padding: 30px; border: 1px solid #e0e0e0; border-top: none;">
-                <p style="font-size: 16px; margin: 0 0 10px 0;">{email_content.greeting}</p>
-                <p style="font-size: 18px; color: #4a90e2; font-weight: bold; margin: 0 0 20px 0;">{email_content.date_reference}</p>
+                <p style="font-size: 16px; margin: 0 0 10px 0;">Hi {user},</p>
+                <p style="font-size: 18px; color: #4a90e2; font-weight: bold; margin: 0 0 20px 0;">Your AI digest for {datetime.now().strftime("%B %d, %Y")} is ready!</p>
                 <p style="color: #555; line-height: 1.8; margin-bottom: 30px;">{email_content.introduction}</p>
                 
                 {items_html}

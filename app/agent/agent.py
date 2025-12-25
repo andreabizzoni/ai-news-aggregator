@@ -5,7 +5,6 @@ from typing import List
 from ..models.llm_response import DigestLLMResponse, EmailLLMResponse
 import logging
 import asyncio
-from datetime import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -34,14 +33,11 @@ You are an expert at creating structured email content for AI news digests.
 
 Your task is to analyze the provided news items and generate structured email content that includes:
 
-1. **Greeting**: A warm greeting (e.g., "Hi Andrea,")
-2. **Date Reference**: A friendly reference to the date provided (e.g., "Here's your curated AI digest for {date}")
-3. **Introduction**: A brief, engaging 1-2 sentence introduction about the curated AI news
-4. **Digest Items**: For each news item, create:
+1. **Introduction**: A brief, engaging 1-2 sentence introduction about the curated AI news
+2. **Digest Items**: For each news item, create:
    - A compelling title/headline (5-10 words)
    - A summary (2-3 sentences highlighting key insights)
    - Include the URL and source attribution
-5. **Sign Off**: A friendly closing message
 
 Guidelines:
 - Use clear, accessible language while maintaining technical accuracy
@@ -102,7 +98,6 @@ class Agent:
 
     def create_email_content(self, items: List[NewsItem]) -> EmailLLMResponse:
         formatted_prompt = EMAIL_PROMPT.format(
-            date=datetime.now().strftime("%B %d, %Y"),
             contents="\n".join(
                 [
                     item.model_dump_json(
