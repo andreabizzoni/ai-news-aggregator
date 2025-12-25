@@ -6,6 +6,7 @@ from ..models.llm_response import DigestLLMResponse, EmailLLMResponse
 import logging
 import asyncio
 from dotenv import load_dotenv
+from langfuse import observe
 
 load_dotenv()
 
@@ -59,6 +60,7 @@ class Agent:
         self.client = Client(api_key=os.getenv("GEMINI_API_KEY"))
         self.prompt = DIGEST_PROMPT
 
+    @observe(as_type="generation")
     async def add_digest(self, items: List[NewsItem]) -> List[NewsItem]:
         formatted_prompt = self.prompt.format(
             contents="\n".join(
@@ -96,6 +98,7 @@ class Agent:
             logger.exception(f"Failed to generate digests for news articles: {e}")
             return items
 
+    @observe(as_type="generation")
     def create_email_content(self, items: List[NewsItem]) -> EmailLLMResponse:
         formatted_prompt = EMAIL_PROMPT.format(
             contents="\n".join(
