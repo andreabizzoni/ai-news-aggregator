@@ -21,7 +21,7 @@ def main():
         logger.info("Database initialized successfully")
 
         config = RunnerConfig(
-            time_window_hours=50,
+            time_window_hours=24,
             youtube_channels=[
                 "UCLKPca3kwwd-B59HNr-_lvA",
                 "UCn8ujwUInbJkBhffxqAPBVQ",
