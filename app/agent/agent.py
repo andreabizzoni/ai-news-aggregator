@@ -78,11 +78,18 @@ class Agent:
                 self.client.models.generate_content,
                 model=self.model,
                 contents=formatted_prompt,
+                config={
+                    "response_mime_type": "application/json",
+                    "response_json_schema": DigestLLMResponse.model_json_schema(),
+                },
             )
 
             self.langfuse.update_current_generation(
                 model=self.model,
-                input=formatted_prompt,
+                input={
+                    "messages": [{"role": "user", "content": formatted_prompt}],
+                    "response_schema": DigestLLMResponse.model_json_schema(),
+                },
                 output=response.text,
                 usage_details={
                     "input": response.usage_metadata.prompt_token_count,

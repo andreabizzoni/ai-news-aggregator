@@ -26,7 +26,6 @@ def main():
                 "UCLKPca3kwwd-B59HNr-_lvA",
                 "UCn8ujwUInbJkBhffxqAPBVQ",
                 "UCDsVC_ewpcEW_AQcO-H-RDQ",
-                "UCEbYhDd6c6vngsF5PQpFVWg",
             ],
         )
 
