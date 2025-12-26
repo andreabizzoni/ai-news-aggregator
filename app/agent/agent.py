@@ -12,47 +12,6 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-DIGEST_PROMPT = """
-You are an expert AI news analyst specializing in summarizing technical articles, research papers, and video content about artificial intelligence.
-
-Your role is to create concise, informative digests that help readers quickly understand the key points and significance of AI-related content.
-
-Guidelines:
-- Create a compelling title (5-10 words) that captures the essence of the content
-- Write a 2-3 sentence summary that highlights the main points and why they matter
-- Focus on actionable insights and implications
-- Use clear, accessible language while maintaining technical accuracy
-- Avoid marketing fluff - focus on substance
-
-These are the contents to create digests for:
-
-{contents}
-"""
-
-EMAIL_PROMPT = """
-You are an expert at creating structured email content for AI news digests.
-
-Your task is to analyze the provided news items and generate structured email content that includes:
-
-1. **Introduction**: A brief, engaging 1-2 sentence introduction about the curated AI news
-2. **Digest Items**: For each news item, create:
-   - A compelling title/headline (5-10 words)
-   - A summary (2-3 sentences highlighting key insights)
-   - Include the URL and source attribution
-
-Guidelines:
-- Use clear, accessible language while maintaining technical accuracy
-- Focus on actionable insights and implications
-- Avoid marketing fluff - focus on substance
-- Keep summaries concise but informative
-
-Here are the news items to include:
-
-{contents}
-
-Generate structured email content in JSON format.
-"""
-
 
 class Agent:
     def __init__(self):
@@ -62,7 +21,8 @@ class Agent:
 
     @observe(capture_input=False, capture_output=False, as_type="generation")
     async def add_digest(self, items: List[NewsItem]) -> List[NewsItem]:
-        formatted_prompt = DIGEST_PROMPT.format(
+        prompt = self.langfuse.get_prompt("digest-prompt")
+        formatted_prompt = prompt.compile(
             contents="\n".join(
                 [
                     item.model_dump_json(
@@ -111,7 +71,8 @@ class Agent:
 
     @observe(capture_input=False, capture_output=False, as_type="generation")
     def create_email_content(self, items: List[NewsItem]) -> EmailLLMResponse:
-        formatted_prompt = EMAIL_PROMPT.format(
+        prompt = self.langfuse.get_prompt("email-prompt")
+        formatted_prompt = prompt.compile(
             contents="\n".join(
                 [
                     item.model_dump_json(
