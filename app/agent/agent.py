@@ -86,10 +86,7 @@ class Agent:
 
             self.langfuse.update_current_generation(
                 model=self.model,
-                input={
-                    "messages": [{"role": "user", "content": formatted_prompt}],
-                    "response_schema": DigestLLMResponse.model_json_schema(),
-                },
+                input=formatted_prompt,
                 output=response.text,
                 usage_details={
                     "input": response.usage_metadata.prompt_token_count,
@@ -145,10 +142,7 @@ class Agent:
 
             self.langfuse.update_current_generation(
                 model=self.model,
-                input={
-                    "messages": [{"role": "user", "content": formatted_prompt}],
-                    "response_schema": EmailLLMResponse.model_json_schema(),
-                },
+                input=formatted_prompt,
                 output=response.text,
                 usage_details={
                     "input": response.usage_metadata.prompt_token_count,
